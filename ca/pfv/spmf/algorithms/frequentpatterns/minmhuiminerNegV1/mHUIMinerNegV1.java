@@ -11,9 +11,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -47,6 +49,9 @@ public class mHUIMinerNegV1 {
     private long totalUtility = 0; // sum of all transaction utilities
     private int minUtility = 0; // threshold
     private int joinCount = 0; // number of times the construct method is called
+    //NEW
+    /** Store single items with negative utility */
+	Set<Integer> negativeItems = null;
 
     // Map TWU to each item
     private Map<Integer, Integer> mapItemToTWU;
@@ -69,10 +74,10 @@ public class mHUIMinerNegV1 {
      *
      * @param input       path to an input file
      * @param allItemsets path for writing the output file
-     * @param ratio       the minimum utility threshold as a ratio
+     * @param minimumUtility       the minimum utility threshold as a ratio
      * @throws IOException exception if error while reading or writing the file
      */
-    public void runAlgorithm(String input, String allItemsets, Double ratio, String outputMin) throws IOException {
+    public void runAlgorithm(String input, String allItemsets, int minimumUtility, String outputMin) throws IOException {
 
         maxMemory = 0;
 
@@ -80,6 +85,9 @@ public class mHUIMinerNegV1 {
 
         allWriter = new BufferedWriter(new FileWriter(allItemsets));
         writerMin = new BufferedWriter(new FileWriter(outputMin));
+
+        //NEW
+        negativeItems = new HashSet<Integer>();
 
         // create a map to store the TWU of each item
         mapItemToTWU = new HashMap<Integer, Integer>();
@@ -131,8 +139,8 @@ public class mHUIMinerNegV1 {
         try {
 
             // calculate minUtility threshold
-            Double temp = totalUtility * ratio;
-            minUtility = temp.intValue();
+            //Double temp = totalUtility * ratio;
+            minUtility = minimumUtility;
             System.out.println("minUtility: " + minUtility);
 
             IHUPTreeMod tree = new IHUPTreeMod();
@@ -179,6 +187,10 @@ public class mHUIMinerNegV1 {
                     // we remove unpromising items from the tree
                     if (mapItemToTWU.get(item) >= minUtility) {
                         revisedTransaction.add(element);
+                        //NEW
+                        if(utility> 0){
+                            negativeItems.add(item);
+                        }
                     }
                 }
 
@@ -199,7 +211,7 @@ public class mHUIMinerNegV1 {
                     Item item = revisedTransaction.get(i);
                     UtilityTuple uTuple = new UtilityTuple(tid, item.getUtility(), remainingUtility);
                     mapItemToUtilityList.get(item.getItemID()).addTuple(uTuple);
-                    remainingUtility += item.getUtility();
+                    remainingUtility += item.getUtility()>0?item.getUtility():0;
                 }
 
                 // add transaction to the global IHUP-Tree
@@ -207,7 +219,7 @@ public class mHUIMinerNegV1 {
             } // end while, finished building tree and utilityLists
 
             // we create the header table for the global IHUP-Tree
-            tree.createHeaderList(mapItemToTWU);
+            tree.createHeaderList(mapItemToTWU,negativeItems);
             checkMemory();
 
             for (int i = tree.headerList.size() - 1; i >= 0; i--) {
@@ -281,6 +293,14 @@ public class mHUIMinerNegV1 {
     }
 
     private int compareItemsAsc(int item1, int item2, Map<Integer, Integer> mapItemEstimatedUtility) {
+        //new
+        Boolean item1IsNegative = negativeItems.contains(item1);
+		Boolean item2IsNegative = negativeItems.contains(item2);
+		if(!item1IsNegative && item2IsNegative) {
+			return -1;
+		}else if (item1IsNegative && !item2IsNegative)  {
+			return 1;
+		}
         int compare = mapItemEstimatedUtility.get(item1) - mapItemEstimatedUtility.get(item2);
         // if the same, use the lexical order otherwise use the TWU
         return (compare == 0) ? item1 - item2 : compare;
@@ -380,7 +400,7 @@ public class mHUIMinerNegV1 {
         }
 
         // create the local header table
-        localTree.createHeaderList(mapItemToTWU);
+        localTree.createHeaderList(mapItemToTWU,negativeItems);
         return localTree;
     }
 
@@ -563,14 +583,34 @@ public class mHUIMinerNegV1 {
      * Print statistics about the latest execution to System.out.
      */
     public void printStats() {
-        System.out.println("=============  mHUIMiner - STATS =============");
-        System.out.println(" Total utility: " + totalUtility);
-        System.out.println(" Minimum utility: " + minUtility);
+        System.out.println("=============  MinmHUIMinerNegV1 - STATS =============");
+        //System.out.println(" Total utility: " + totalUtility);
+        //System.out.println(" Minimum utility: " + minUtility);
         System.out.println(" Total time ~ " + (endTimestamp - startTimestamp) + " ms");
         System.out.println(" Memory ~ " + maxMemory + " MB");
-        System.out.println(" Join count: " + joinCount);
+        //System.out.println(" Join count: " + joinCount);
         System.out.println(" HUIs count : " + huiCount);
         System.out.println("===================================================");
     }
+	public int getHUI(){
+		return huiCount;
+	}
+	public long getTime(){
+		return endTimestamp - startTimestamp;
+	}
+	public double getMemory(){
+         return maxMemory;
+	}
 
 }
+
+/**
+ * Cambios
+ * Add Negative set, to identife singe items with negative utility
+ * Change comparateive sort in the IHUPTREE and local compare
+ * change remaininig utility
+ * add setter and getter
+ * change min_utility param
+ * 
+ * New changes
+ */

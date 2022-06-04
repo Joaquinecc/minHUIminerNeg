@@ -34,17 +34,21 @@ public class Atest {
         String inputs_db[]={"DB_retail_negative.txt","DB_kosarak_negative.txt"};
         int min_utility;
 		long totalUtility;
-        System.out.println("Total Utility = " +totalUtility);
+        
     
         //Write Headers
         writer.write("db,total_utility,ratio_utilit,minutil,fhn,t,m,mHuiminerNegV1,t,m,mHuiminerNegV2,t,m\n");
         
         for(String input_db:inputs_db){
-            String input = fileToPath("input_db");
+
+            String input = fileToPath(input_db);
             totalUtility= getTotalUtility(input);
+            System.out.println(" input = " + input+"Total Utility = " +totalUtility );
+
             for(double ratioMin=0.001;ratioMin<0.2;ratioMin+=0.001){
+
                 min_utility=(int) (ratioMin*totalUtility);
-                System.out.println("min_utility = "   +min_utility);
+                System.out.println("ratioMin = "   +ratioMin);
                 writer.write(input+','+totalUtility+","+ratioMin+","+min_utility+",");
     
                 //Algo test

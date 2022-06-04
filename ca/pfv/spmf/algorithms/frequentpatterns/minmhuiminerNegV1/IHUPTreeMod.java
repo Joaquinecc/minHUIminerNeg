@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * This is an implementation of the IHUP-Tree used by mHUIMiner.
@@ -145,7 +146,7 @@ public class IHUPTreeMod {
      *
      * @param mapItemToTWU the TWU of each item (key: item, value: TWU)
      */
-    void createHeaderList(final Map<Integer, Integer> mapItemToTWU) {
+    void createHeaderList(final Map<Integer, Integer> mapItemToTWU,Set<Integer> negativeItems) {
         // create an array to store the header list with
         // all the items stored in the map received as parameter
         headerList = new ArrayList<Integer>(mapItemNodes.keySet());
@@ -153,6 +154,13 @@ public class IHUPTreeMod {
         // sort the header table by decreasing order of utility
         Collections.sort(headerList, new Comparator<Integer>() {
             public int compare(Integer id1, Integer id2) {
+                Boolean item1IsNegative = negativeItems.contains(id1);
+				Boolean item2IsNegative = negativeItems.contains(id2);
+				if(!item1IsNegative && item2IsNegative) {
+					return 1;
+				}else if (item1IsNegative && !item2IsNegative)  {
+					return -1;
+				}
                 // compare the Utility
                 int compare = mapItemToTWU.get(id2) - mapItemToTWU.get(id1);
                 // if the same utility, we check the lexical ordering!
