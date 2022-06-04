@@ -30,31 +30,36 @@ public class Atest {
     static BufferedWriter writer = null; 
     public static void main(String [] arg) throws IOException{
 		writer = new BufferedWriter(new FileWriter("C:\\Users\\Euli\\Documents\\uca\\tesis\\SMPF\\test_result\\result.csv"));
-		String input = fileToPath("DB_retail_negative.txt");
-		  
+		//String input = fileToPath("DB_retail_negative.txt");
+        String inputs_db[]={"DB_retail_negative.txt","DB_kosarak_negative.txt"};
         int min_utility;
-		long totalUtility= getTotalUtility(input);
+		long totalUtility;
         System.out.println("Total Utility = " +totalUtility);
     
         //Write Headers
-        writer.write("total_utility,ratio_utilit,minutil,fhn,t,m,mHuiminerNegV1,t,m,mHuiminerNegV2,t,m\n");
+        writer.write("db,total_utility,ratio_utilit,minutil,fhn,t,m,mHuiminerNegV1,t,m,mHuiminerNegV2,t,m\n");
         
-        for(double ratioMin=0.005;ratioMin<0.2;ratioMin+=0.005){
-            min_utility=(int) (ratioMin*totalUtility);
-            System.out.println("min_utility = "   +min_utility);
-            
-            writer.write(totalUtility+","+ratioMin+","+min_utility+",");
-
-            //Algo test
-            runFHN(input, min_utility);
-            runMHUIminerNegV1(input, min_utility);
-            runMHUIminerNegV2(input, min_utility);
-
-            //New line for new test results
-            writer.newLine();
+        for(String input_db:inputs_db){
+            String input = fileToPath("input_db");
+            totalUtility= getTotalUtility(input);
+            for(double ratioMin=0.001;ratioMin<0.2;ratioMin+=0.001){
+                min_utility=(int) (ratioMin*totalUtility);
+                System.out.println("min_utility = "   +min_utility);
+                writer.write(input+','+totalUtility+","+ratioMin+","+min_utility+",");
+    
+                //Algo test
+                runFHN(input, min_utility);
+                runMHUIminerNegV1(input, min_utility);
+                runMHUIminerNegV2(input, min_utility);
+    
+                //New line for new test results
+                writer.newLine();
+    
+            }
+           
 
         }
-        writer.close();
+         writer.close();
         //runHUINIV(input, output, min_utility);
         // runMHUIminer(input, output, min_utility);
         // runMinMHUIminer(input);
