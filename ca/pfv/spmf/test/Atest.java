@@ -5,7 +5,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 
 import ca.pfv.spmf.algorithms.frequentpatterns.hui_miner.AlgoFHN;
-
+import ca.pfv.spmf.algorithms.frequentpatterns.mHUIMineNegV1.AlgoMHUIMinerNegV1;
 //HUINIV
 import ca.pfv.spmf.algorithms.frequentpatterns.two_phase.AlgoHUINIVMine;
 import ca.pfv.spmf.algorithms.frequentpatterns.two_phase.ItemsetsTP;
@@ -21,19 +21,26 @@ import ca.pfv.spmf.algorithms.frequentpatterns.minmhuiminer.mHUIMiner;
 public class Atest {
     public static void main(String [] arg) throws IOException{
 		
-		String input = fileToPath("DB_NegativeUtility.txt");
-		String output = ".//test_result//output.txt";
-
-		int min_utility = 80;  
+		String input = fileToPath("DB_retail_negative.txt");
+		int min_utility = 100000;  
 		
-        runFHN(input, output, min_utility);
-        runHUINIV(input, output, min_utility);
-        runMHUIminer(input, output, min_utility);
-        runMinMHUIminer(input);
-	}
+        runFHN(input, min_utility);
+        runMHUIminerNegV1(input, min_utility);
 
-	public static void runFHN(String input,String output, int min_utility)  throws IOException{
+        //runHUINIV(input, output, min_utility);
+        // runMHUIminer(input, output, min_utility);
+        // runMinMHUIminer(input);
+	}
+    public static void runMHUIminerNegV1(String input, int min_utility)  throws IOException{
+        // Applying the HUIMiner algorithm
+		AlgoMHUIMinerNegV1 huiminer = new AlgoMHUIMinerNegV1();
+		huiminer.runAlgorithm(input,".//test_result//mHUIminerNegV1output.txt" , min_utility);
+		huiminer.printStats();
+    }
+
+	public static void runFHN(String input, int min_utility)  throws IOException{
         // Applying the FHN algorithm
+        String output = ".//test_result//fhnoutput.txt";
         AlgoFHN algo = new AlgoFHN();
         algo.runAlgorithm(input, output, min_utility);
         algo.printStats();

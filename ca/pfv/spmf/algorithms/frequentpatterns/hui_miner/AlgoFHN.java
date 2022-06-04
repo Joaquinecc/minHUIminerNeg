@@ -567,8 +567,8 @@ public class AlgoFHN {
 		System.out.println("=============  FHN ALGORITHM v0.96r18 - STATS =============");
 		System.out.println(" Total time ~ "                  + (endTimestamp - startTimestamp) + " ms");
 		System.out.println(" Memory ~ "                      + MemoryLogger.getInstance().getMaxMemory() + " MB");
-		System.out.println(" High-utility itemsets count : " + huiCount); 
 		System.out.println(" Candidate count : "             + candidateCount);
+		System.out.println(" High-utility itemsets count : " + huiCount); 
 		
 		if(DEBUG) {
 			int pairCount = 0;
