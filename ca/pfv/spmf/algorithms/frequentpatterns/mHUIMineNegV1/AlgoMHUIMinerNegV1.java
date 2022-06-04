@@ -496,7 +496,7 @@ public class AlgoMHUIMinerNegV1 {
 	 * Print statistics about the latest execution to System.out.
 	 */
 	public void printStats() {
-		System.out.println("=============  AlgoMHUIMiner v. 2.019 - STATS =============");
+		System.out.println("=============  AlgoMHUIMinerNegV1  - STATS =============");
 		System.out.println(" Total utility: " + totalUtility);
 		System.out.println(" Minimum utility: " + minUtility);
 		System.out.println(" Total time ~ " + (endTimestamp - startTimestamp) + " ms");

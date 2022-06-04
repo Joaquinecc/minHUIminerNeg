@@ -1,6 +1,10 @@
 package ca.pfv.spmf.test;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 
@@ -22,10 +26,20 @@ public class Atest {
     public static void main(String [] arg) throws IOException{
 		
 		String input = fileToPath("DB_retail_negative.txt");
-		int min_utility = 100000;  
-		
-        runFHN(input, min_utility);
-        runMHUIminerNegV1(input, min_utility);
+		//int min_utility = 100000;  
+        int min_utility;
+		long totalUtility= getTotalUtility(input);
+        System.out.println("Total Utility = " +totalUtility);
+
+        for(double ratioMin=0.1;ratioMin<0.5;ratioMin+=0.1){
+            min_utility=(int) (ratioMin*totalUtility);
+            System.out.println("min_utility = "   +min_utility);
+            runFHN(input, min_utility);
+            runMHUIminerNegV1(input, min_utility);
+
+        }
+
+    
 
         //runHUINIV(input, output, min_utility);
         // runMHUIminer(input, output, min_utility);
@@ -57,6 +71,43 @@ public class Atest {
 		highUtilityItemsets.saveResultsToFile(output, database.getTransactions().size());
 
 		algo.printStats();
+    }
+
+    public static long getTotalUtility(String input) throws IOException {
+        // We scan the database a first time to calculate the TWU of each item.
+		BufferedReader myInput = null;
+		String thisLine;
+        long totalUtility = 0;
+        try {
+			// prepare the object for reading the file
+			myInput = new BufferedReader(new InputStreamReader( new FileInputStream(new File(input))));
+			// for each line (transaction) until the end of file
+			while ((thisLine = myInput.readLine()) != null) {
+				// if the line is  a comment, is  empty or is a
+				// kind of metadata
+				if (thisLine.isEmpty() == true ||
+						thisLine.charAt(0) == '#' || thisLine.charAt(0) == '%'
+								|| thisLine.charAt(0) == '@') {
+					continue;
+				}
+				
+				// split the transaction according to the : separator
+				String split[] = thisLine.split(":");
+				// the second part is the transaction utility
+				int transactionUtility = Integer.parseInt(split[1]);  
+                totalUtility += transactionUtility;
+				
+			}
+		} catch (Exception e) {
+			// catches exception if error while reading the input file
+			e.printStackTrace();
+		}finally {
+			if(myInput != null){
+				myInput.close();
+			}
+	    }
+        return totalUtility;
+
     }
 
     public static void runMHUIminer(String input,String output, int min_utility)  throws IOException{
