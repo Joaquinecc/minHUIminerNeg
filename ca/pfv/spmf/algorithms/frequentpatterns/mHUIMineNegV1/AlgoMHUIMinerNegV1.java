@@ -496,13 +496,24 @@ public class AlgoMHUIMinerNegV1 {
 	 * Print statistics about the latest execution to System.out.
 	 */
 	public void printStats() {
-		System.out.println("=============  AlgoMHUIMinerNegV1  - STATS =============");
-		System.out.println(" Total utility: " + totalUtility);
-		System.out.println(" Minimum utility: " + minUtility);
+		System.out.println("=============  AlgoMHUIMinerNegV1 v. 2.20 - STATS =============");
+		//System.out.println(" Total utility: " + totalUtility);
+		//System.out.println(" Minimum utility: " + minUtility);
 		System.out.println(" Total time ~ " + (endTimestamp - startTimestamp) + " ms");
 		System.out.println(" Memory ~ " + MemoryLogger.getInstance().getMaxMemory() + " MB");
-		System.out.println(" Join count: "+ joinCount);
+		//System.out.println(" Join count: "+ joinCount);
 		System.out.println(" HUIs count : " + huiCount);
 		System.out.println("===================================================");
 	}
+
+	public int getHUI(){
+		return huiCount;
+	}
+	public long getTime(){
+		return endTimestamp - startTimestamp;
+	}
+	public double getMemory(){
+         return MemoryLogger.getInstance().getMaxMemory();
+	}
+
 }

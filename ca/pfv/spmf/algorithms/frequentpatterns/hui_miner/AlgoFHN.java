@@ -567,7 +567,7 @@ public class AlgoFHN {
 		System.out.println("=============  FHN ALGORITHM v0.96r18 - STATS =============");
 		System.out.println(" Total time ~ "                  + (endTimestamp - startTimestamp) + " ms");
 		System.out.println(" Memory ~ "                      + MemoryLogger.getInstance().getMaxMemory() + " MB");
-		System.out.println(" Candidate count : "             + candidateCount);
+		//System.out.println(" Candidate count : "             + candidateCount);
 		System.out.println(" High-utility itemsets count : " + huiCount); 
 		
 		if(DEBUG) {
@@ -602,4 +602,15 @@ public class AlgoFHN {
         double maxMemory = baos.size() / 1024d / 1024d;
         return maxMemory;
     }
+
+	
+	public int getHUI(){
+		return huiCount;
+	}
+	public long getTime(){
+		return endTimestamp - startTimestamp;
+	}
+	public double getMemory(){
+         return MemoryLogger.getInstance().getMaxMemory();
+	}
 }
