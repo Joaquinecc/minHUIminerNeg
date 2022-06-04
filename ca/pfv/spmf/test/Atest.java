@@ -12,6 +12,7 @@ import java.net.URL;
 
 import ca.pfv.spmf.algorithms.frequentpatterns.hui_miner.AlgoFHN;
 import ca.pfv.spmf.algorithms.frequentpatterns.mHUIMineNegV1.AlgoMHUIMinerNegV1;
+import ca.pfv.spmf.algorithms.frequentpatterns.mHUIMineNegV2.AlgoMHUIMinerNegV2;
 //HUINIV
 import ca.pfv.spmf.algorithms.frequentpatterns.two_phase.AlgoHUINIVMine;
 import ca.pfv.spmf.algorithms.frequentpatterns.two_phase.ItemsetsTP;
@@ -36,9 +37,9 @@ public class Atest {
         System.out.println("Total Utility = " +totalUtility);
     
         //Write Headers
-        writer.write("total_utility,ratio_utilit,minutil,mHuiminerNegV1,t,m,fhn,t,m\n");
+        writer.write("total_utility,ratio_utilit,minutil,fhn,t,m,mHuiminerNegV1,t,m,mHuiminerNegV2,t,m\n");
         
-        for(double ratioMin=0.1;ratioMin<0.5;ratioMin+=0.1){
+        for(double ratioMin=0.005;ratioMin<0.2;ratioMin+=0.005){
             min_utility=(int) (ratioMin*totalUtility);
             System.out.println("min_utility = "   +min_utility);
             
@@ -47,6 +48,7 @@ public class Atest {
             //Algo test
             runFHN(input, min_utility);
             runMHUIminerNegV1(input, min_utility);
+            runMHUIminerNegV2(input, min_utility);
 
             //New line for new test results
             writer.newLine();
@@ -61,6 +63,14 @@ public class Atest {
         // Applying the HUIMiner algorithm
 		AlgoMHUIMinerNegV1 algo = new AlgoMHUIMinerNegV1();
 		algo.runAlgorithm(input,".//test_result//mHUIminerNegV1output.txt" , min_utility);
+		algo.printStats();
+        writer.write(algo.getHUI()+","+algo.getTime()+","+algo.getMemory()+",");
+    }
+
+    public static void runMHUIminerNegV2(String input, int min_utility)  throws IOException{
+        // Applying the HUIMiner algorithm
+		AlgoMHUIMinerNegV2 algo = new AlgoMHUIMinerNegV2();
+		algo.runAlgorithm(input,".//test_result//mHUIminerNegV2output.txt" , min_utility);
 		algo.printStats();
         writer.write(algo.getHUI()+","+algo.getTime()+","+algo.getMemory()+",");
     }
