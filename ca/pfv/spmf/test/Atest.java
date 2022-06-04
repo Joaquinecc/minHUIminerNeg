@@ -1,8 +1,10 @@
 package ca.pfv.spmf.test;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
@@ -23,33 +25,44 @@ import ca.pfv.spmf.algorithms.frequentpatterns.minmhuiminer.mHUIMiner;
  * @author Joaquin CAballero, 2022
  */
 public class Atest {
+    /** Object for writing the output to a file */
+    static BufferedWriter writer = null; 
     public static void main(String [] arg) throws IOException{
-		
+		writer = new BufferedWriter(new FileWriter("C:\\Users\\Euli\\Documents\\uca\\tesis\\SMPF\\test_result\\result.csv"));
 		String input = fileToPath("DB_retail_negative.txt");
-		//int min_utility = 100000;  
+		  
         int min_utility;
 		long totalUtility= getTotalUtility(input);
         System.out.println("Total Utility = " +totalUtility);
-
+    
+        //Write Headers
+        writer.write("total_utility,ratio_utilit,minutil,mHuiminerNegV1,t,m,fhn,t,m\n");
+        
         for(double ratioMin=0.1;ratioMin<0.5;ratioMin+=0.1){
             min_utility=(int) (ratioMin*totalUtility);
             System.out.println("min_utility = "   +min_utility);
+            
+            writer.write(totalUtility+","+ratioMin+","+min_utility+",");
+
+            //Algo test
             runFHN(input, min_utility);
             runMHUIminerNegV1(input, min_utility);
 
+            //New line for new test results
+            writer.newLine();
+
         }
-
-    
-
+        writer.close();
         //runHUINIV(input, output, min_utility);
         // runMHUIminer(input, output, min_utility);
         // runMinMHUIminer(input);
 	}
     public static void runMHUIminerNegV1(String input, int min_utility)  throws IOException{
         // Applying the HUIMiner algorithm
-		AlgoMHUIMinerNegV1 huiminer = new AlgoMHUIMinerNegV1();
-		huiminer.runAlgorithm(input,".//test_result//mHUIminerNegV1output.txt" , min_utility);
-		huiminer.printStats();
+		AlgoMHUIMinerNegV1 algo = new AlgoMHUIMinerNegV1();
+		algo.runAlgorithm(input,".//test_result//mHUIminerNegV1output.txt" , min_utility);
+		algo.printStats();
+        writer.write(algo.getHUI()+","+algo.getTime()+","+algo.getMemory()+",");
     }
 
 	public static void runFHN(String input, int min_utility)  throws IOException{
@@ -58,6 +71,7 @@ public class Atest {
         AlgoFHN algo = new AlgoFHN();
         algo.runAlgorithm(input, output, min_utility);
         algo.printStats();
+        writer.write(algo.getHUI()+","+algo.getTime()+","+algo.getMemory()+",");
     }
     public static void runHUINIV(String input,String output, int min_utility)  throws IOException{
         		// Loading the database into memory
