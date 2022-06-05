@@ -20,6 +20,7 @@ import ca.pfv.spmf.algorithms.frequentpatterns.two_phase.UtilityTransactionDatab
 
 import ca.pfv.spmf.algorithms.frequentpatterns.mHUIMiner.AlgoMHUIMiner;
 import ca.pfv.spmf.algorithms.frequentpatterns.minmhuiminer.mHUIMiner;
+import ca.pfv.spmf.algorithms.frequentpatterns.minmhuiminerNegV1.MinmHUIMinerNegV1;
 
 /**
  * Example of tet negative frequent pattern
@@ -31,13 +32,13 @@ public class Atest {
     public static void main(String [] arg) throws IOException{
 		writer = new BufferedWriter(new FileWriter("C:\\Users\\Euli\\Documents\\uca\\tesis\\SMPF\\test_result\\result.csv"));
 		//String input = fileToPath("DB_retail_negative.txt");
-        String inputs_db[]={"DB_retail_negative.txt","DB_kosarak_negative.txt"};
+        String inputs_db[]={"pumsb_negative,.txt","DB_retail_negative.txt"};
         int min_utility;
 		long totalUtility;
         
     
         //Write Headers
-        writer.write("db,total_utility,ratio_utilit,minutil,fhn,t,m,mHuiminerNegV1,t,m,mHuiminerNegV2,t,m\n");
+        writer.write("db,total_utility,ratio_utilit,minutil,fhn,t,m,mHuiminerNegV1,t,m,mHuiminerNegV2,t,m,runMinmHUIminerNegV1,t,m\n");
         
         for(String input_db:inputs_db){
 
@@ -45,17 +46,18 @@ public class Atest {
             totalUtility= getTotalUtility(input);
             System.out.println(" input = " + input+"Total Utility = " +totalUtility );
 
-            for(double ratioMin=0.001;ratioMin<0.2;ratioMin+=0.001){
+            for(double ratioMin=0.15;ratioMin<=0.5;ratioMin+=0.1){
 
                 min_utility=(int) (ratioMin*totalUtility);
                 System.out.println("ratioMin = "   +ratioMin);
+                System.out.println("min_utility = "   +min_utility);
                 writer.write(input+','+totalUtility+","+ratioMin+","+min_utility+",");
     
                 //Algo test
                 runFHN(input, min_utility);
                 runMHUIminerNegV1(input, min_utility);
                 runMHUIminerNegV2(input, min_utility);
-    
+                runMinmHUIminerNegV1(input, min_utility);
                 //New line for new test results
                 writer.newLine();
     
@@ -68,10 +70,10 @@ public class Atest {
         // runMHUIminer(input, output, min_utility);
         // runMinMHUIminer(input);
 	}
-    public static void runMHUIminerNegV1(String input, int min_utility)  throws IOException{
+    public static void runMinmHUIminerNegV1(String input, int min_utility)  throws IOException{
         // Applying the HUIMiner algorithm
-		AlgoMHUIMinerNegV1 algo = new AlgoMHUIMinerNegV1();
-		algo.runAlgorithm(input,".//test_result//mHUIminerNegV1output.txt" , min_utility);
+		MinmHUIMinerNegV1 algo = new MinmHUIMinerNegV1();
+		algo.runAlgorithm(input,".//test_result//mierdas.txt", min_utility,".//test_result//mHUIminerNegV1output.txt" );
 		algo.printStats();
         writer.write(algo.getHUI()+","+algo.getTime()+","+algo.getMemory()+",");
     }
@@ -80,6 +82,14 @@ public class Atest {
         // Applying the HUIMiner algorithm
 		AlgoMHUIMinerNegV2 algo = new AlgoMHUIMinerNegV2();
 		algo.runAlgorithm(input,".//test_result//mHUIminerNegV2output.txt" , min_utility);
+		algo.printStats();
+        writer.write(algo.getHUI()+","+algo.getTime()+","+algo.getMemory()+",");
+    }
+
+    public static void runMHUIminerNegV1(String input, int min_utility)  throws IOException{
+        // Applying the HUIMiner algorithm
+		AlgoMHUIMinerNegV1 algo = new AlgoMHUIMinerNegV1();
+		algo.runAlgorithm(input,".//test_result//mHUIminerNegV1output.txt" , min_utility);
 		algo.printStats();
         writer.write(algo.getHUI()+","+algo.getTime()+","+algo.getMemory()+",");
     }
