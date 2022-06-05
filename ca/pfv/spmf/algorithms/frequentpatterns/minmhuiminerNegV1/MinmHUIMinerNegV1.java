@@ -589,7 +589,7 @@ public class MinmHUIMinerNegV1 {
         System.out.println(" Total time ~ " + (endTimestamp - startTimestamp) + " ms");
         System.out.println(" Memory ~ " + maxMemory + " MB");
         //System.out.println(" Join count: " + joinCount);
-        System.out.println(" HUIs count : " + huiCount);
+        System.out.println(" MinHUIs count : " + listItemsetsBySize.size());
         System.out.println("===================================================");
     }
 	public int getHUI(){
