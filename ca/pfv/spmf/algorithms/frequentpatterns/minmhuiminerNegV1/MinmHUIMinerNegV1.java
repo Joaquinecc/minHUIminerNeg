@@ -63,7 +63,7 @@ public class MinmHUIMinerNegV1 {
      */
     List<List<Itemset>> listItemsetsBySize = null;
 
-    private BufferedWriter allWriter = null;
+
     private BufferedWriter writerMin = null;
 
     // To activate debug mode
@@ -83,7 +83,6 @@ public class MinmHUIMinerNegV1 {
 
         startTimestamp = System.currentTimeMillis();
 
-        allWriter = new BufferedWriter(new FileWriter(allItemsets));
         writerMin = new BufferedWriter(new FileWriter(outputMin));
 
         //NEW
@@ -247,7 +246,7 @@ public class MinmHUIMinerNegV1 {
                 int[] itemset = ArraysAlgos.appendIntegerToArray(new int[0], itemID);
                 UtilityList ulist = mapItemToUtilityList.get(itemID);
 
-                allWriteOut(itemset, ulist.sumIutils);
+                
 
                 // if sumIutils >= minUtility, the itemset is a minHUI
                 if (ulist.sumIutils < minUtility) {
@@ -288,7 +287,7 @@ public class MinmHUIMinerNegV1 {
 
         // record end time
         endTimestamp = System.currentTimeMillis();
-        allWriter.close();
+      
         writerMin.close();
     }
 
@@ -335,7 +334,7 @@ public class MinmHUIMinerNegV1 {
                 checkMemory();
                 joinCount++;
 
-                allWriteOut(itemset, pxTuples.sumIutils);
+                
 
                 // we create new local prefix tree
                 // and call miner
@@ -530,21 +529,6 @@ public class MinmHUIMinerNegV1 {
      * @param utility
      * @throws IOException
      */
-    private void allWriteOut(int[] HUI, long utility) throws IOException {
-        huiCount++; // increment the number of high utility itemsets found
-
-        StringBuilder buffer = new StringBuilder();
-
-        for (int i = 0; i < HUI.length; i++) {
-            buffer.append(HUI[i]);
-            buffer.append(' ');
-        }
-        buffer.append("#UTIL: ");
-        buffer.append(utility);
-
-        allWriter.write(buffer.toString());
-        allWriter.newLine();
-    }
 
     private void writeOutMin(Itemset itemset) throws IOException {
 //        huiCount++; // increase the number of high utility itemsets found

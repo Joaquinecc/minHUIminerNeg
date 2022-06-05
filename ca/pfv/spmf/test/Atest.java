@@ -32,7 +32,7 @@ public class Atest {
     public static void main(String [] arg) throws IOException{
 		writer = new BufferedWriter(new FileWriter("C:\\Users\\Euli\\Documents\\uca\\tesis\\SMPF\\test_result\\result.csv"));
 		//String input = fileToPath("DB_retail_negative.txt");
-        String inputs_db[]={"DB_biggie_negative.txt"};
+        String inputs_db[]={"ECommerce_retail_utility_timestamps.txt"};
         int min_utility;
 		long totalUtility;
         
@@ -46,7 +46,7 @@ public class Atest {
             totalUtility= getTotalUtility(input);
             System.out.println(" input = " + input+"Total Utility = " +totalUtility );
 
-            for(double ratioMin=0.01;ratioMin<=0.01;ratioMin+=0.01){
+            for(double ratioMin=0.1;ratioMin<=0.1;ratioMin+=0.001){
 
                 min_utility=(int) (ratioMin*totalUtility);
                 System.out.println("ratioMin = "   +ratioMin);
@@ -55,7 +55,7 @@ public class Atest {
     
                 //Algo test
                 runFHN(input, min_utility);
-                runHUINIV(input, min_utility);
+                //runHUINIV(input, min_utility);
                 runMHUIminerNegV1(input, min_utility);
                 runMHUIminerNegV2(input, min_utility);
                 runMinmHUIminerNegV1(input, min_utility);
@@ -90,7 +90,7 @@ public class Atest {
     public static void runMHUIminerNegV1(String input, int min_utility)  throws IOException{
         // Applying the HUIMiner algorithm
 		AlgoMHUIMinerNegV1 algo = new AlgoMHUIMinerNegV1();
-		algo.runAlgorithm(input,".//test_result//mHUIminerNegoutput.txt" , min_utility);
+		algo.runAlgorithm(input,".//test_result//mHUIminerNegV1output.txt" , min_utility);
 		algo.printStats();
         writer.write(algo.getHUI()+","+algo.getTime()+","+algo.getMemory()+",");
     }
