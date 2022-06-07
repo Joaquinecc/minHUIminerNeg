@@ -75,11 +75,10 @@ public class MinmHUIMinerNeg {
      * Method to run the algorithm
      *
      * @param input       path to an input file
-     * @param allItemsets path for writing the output file
      * @param minimumUtility       the minimum utility threshold as a ratio
      * @throws IOException exception if error while reading or writing the file
      */
-    public void runAlgorithm(String input, String allItemsets, int minimumUtility, String outputMin) throws IOException {
+    public void runAlgorithm(String input, int minimumUtility, String outputMin) throws IOException {
 
         maxMemory = 0;
 
