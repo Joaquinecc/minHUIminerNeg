@@ -172,7 +172,7 @@ public class MinmHUIMinerNeg {
 
             // transaction ID to track transactions
             int tid = 0;
-
+            
             // for each line (transaction) until the end of file
             while ((thisLine = myInput.readLine()) != null) {
                 // if the line is a comment, is empty or is a kind of metadata
@@ -198,8 +198,10 @@ public class MinmHUIMinerNeg {
                     int utility = Integer.parseInt(utilityValues[i]);
                     Item element = new Item(item, utility);
 
-                    // we remove unpromising items from the tree
-                    if (mapItemToTWU.get(item) >= minUtility) {
+                    // remove unpromising items from the tree
+                    //remove the single item minHUI
+                    //remove item with only negative utility 
+                    if (mapItemToTWU.get(item) >= minUtility && positiveItems.contains(item) && singleItemUtility.get(item)< minimumUtility ) {
                         revisedTransaction.add(element);
                     }
                 }
@@ -221,6 +223,7 @@ public class MinmHUIMinerNeg {
                     Item item = revisedTransaction.get(i);
                     UtilityTuple uTuple = new UtilityTuple(tid, item.getUtility(), remainingUtility);
                     mapItemToUtilityList.get(item.getItemID()).addTuple(uTuple);
+                    //NEW
                     remainingUtility += item.getUtility()>0?item.getUtility():0;
                 }
 
@@ -256,17 +259,8 @@ public class MinmHUIMinerNeg {
                 // initial itemset contains only single item
                 int[] itemset = ArraysAlgos.appendIntegerToArray(new int[0], itemID);
                 UtilityList ulist = mapItemToUtilityList.get(itemID);
-
-                
-
-                // if sumIutils >= minUtility, the itemset is a minHUI
-                if (ulist.sumIutils < minUtility) {
-
                     // we expand current itemset (build local tree)
                     if ((ulist.sumIutils + ulist.sumRutils) >= minUtility) {
-//                        if (DEBUG) {
-//                            System.out.println("ELSE cond" + Arrays.toString(itemset));
-//                        }
                         // ===== CREATE THE LOCAL TREE =====
                         IHUPTreeMod localTree = createLocalTree(tree, itemID);
                         checkMemory();
@@ -278,7 +272,7 @@ public class MinmHUIMinerNeg {
                             checkMemory();
                         }
                     }
-                }
+                
             } // end for
             // save all min itemsets
             for (List<Itemset> listItemsets : listItemsetsBySize) {
@@ -607,8 +601,8 @@ public class MinmHUIMinerNeg {
  * change min_utility param
  * 
  * New Changes
- * Remove initial single minHui from Revisied Transaction. This reduce tree size and also search sizes
- * Remove all single item with only negatve utility.
+ * Remove initial single minHui from Revisied Transaction. This reduce tree size and also search sizes PRUNE-X
+ * Remove all single item with only negatve utility. Prune- NEG
  * Last Change
  * Sort revise transacction Descending order
  */
