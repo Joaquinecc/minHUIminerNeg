@@ -20,6 +20,7 @@ import ca.pfv.spmf.algorithms.frequentpatterns.two_phase.UtilityTransactionDatab
 
 import ca.pfv.spmf.algorithms.frequentpatterns.mHUIMiner.AlgoMHUIMiner;
 import ca.pfv.spmf.algorithms.frequentpatterns.minmhuiminer.mHUIMiner;
+import ca.pfv.spmf.algorithms.frequentpatterns.minmhuiminerNeg.MinmHUIMinerNeg;
 import ca.pfv.spmf.algorithms.frequentpatterns.minmhuiminerNegV1.MinmHUIMinerNegV1;
 
 /**
@@ -32,45 +33,65 @@ public class Atest {
     public static void main(String [] arg) throws IOException{
 		writer = new BufferedWriter(new FileWriter("C:\\Users\\Euli\\Documents\\uca\\tesis\\SMPF\\test_result\\result.csv"));
 		//String input = fileToPath("DB_retail_negative.txt");
-        String inputs_db[]={"ECommerce_retail_utility_timestamps.txt"};
+        String inputs_db[]={"DB_NegativeUtility.txt","accidents_negative.txt","chess_negative.txt","DB_kosarak_negative.txt","pumsb_negative,.txt","mushroom_negative.txt"};
         int min_utility;
 		long totalUtility;
         
     
-        //Write Headers
-        writer.write("db,total_utility,ratio_utilit,minutil,fhn,t,m,mHuiminerNegV1,t,m,mHuiminerNegV2,t,m,runMinmHUIminerNegV1,t,m\n");
-        
-        for(String input_db:inputs_db){
-
-            String input = fileToPath(input_db);
-            totalUtility= getTotalUtility(input);
-            System.out.println(" input = " + input+"Total Utility = " +totalUtility );
-
-            for(double ratioMin=0.1;ratioMin<=0.1;ratioMin+=0.001){
-
-                min_utility=(int) (ratioMin*totalUtility);
-                System.out.println("ratioMin = "   +ratioMin);
-                System.out.println("min_utility = "   +min_utility);
-                writer.write(input+','+totalUtility+","+ratioMin+","+min_utility+",");
+        //Write Headers columns
+        writer.write("iteratio,db,total_utility,ratio_utilit,minutil,");
+        writer.write("fhn,time,memory,");
+        writer.write("HUINIV,time,memory,");
+        writer.write("Min-mHUIminer-NEG,time,memory,");
+        writer.write("\n");
     
-                //Algo test
-                runFHN(input, min_utility);
-                //runHUINIV(input, min_utility);
-                runMHUIminerNegV1(input, min_utility);
-                runMHUIminerNegV2(input, min_utility);
-                runMinmHUIminerNegV1(input, min_utility);
-                //New line for new test results
-                writer.newLine();
+        int maxIteration=10;
+        for(int i=0;i<maxIteration;i++){
+            for(String input_db:inputs_db){
+                String input = fileToPath(input_db);
+                totalUtility= getTotalUtility(input);
+                System.out.println(" input = " + input_db+"\nTotal Utility = " +totalUtility );
+    
+                for(double ratioMin=0.1;ratioMin<=0.1 ;ratioMin+=0.01){
+    
+                    min_utility=(int) (ratioMin*totalUtility);
+                    System.out.println("Iteration = "   +ratioMin);
+                    System.out.println("ratioMin = "   +ratioMin);
+                    System.out.println("min_utility = "   +min_utility)
+                    ;
+                    writer.write(i+','+input+','+totalUtility+","+ratioMin+","+min_utility+",");
+        
+                    //Algo test
+                    runFHN(input, min_utility);
+                    runTheFinalProduct(input, min_utility);
+                    //runHUINIV(input, min_utility);
+                    //runMHUIminerNeg(input, min_utility);
+                    
+                    //Positive only
+                    runMinMHUIminer(input,ratioMin);
+                    runMHUIminer(input, min_utility);
+                    
+                    //New line for new test results
+                    writer.newLine();
+        
+                }
+               
     
             }
-           
-
+        
         }
-         writer.close();
-        //runHUINIV(input, output, min_utility);
-        // runMHUIminer(input, output, min_utility);
-        // runMinMHUIminer(input);
+    
+        writer.close();
+    
 	}
+    public static void runTheFinalProduct(String input, int min_utility)  throws IOException{
+        // Applying the HUIMiner algorithm
+		MinmHUIMinerNeg algo = new MinmHUIMinerNeg();
+		algo.runAlgorithm(input, min_utility,".//test_result//runTheFinalProduct.txt" );
+		algo.printStats();
+        writer.write(algo.getHUI()+","+algo.getTime()+","+algo.getMemory()+",");
+    }
+
     public static void runMinmHUIminerNegV1(String input, int min_utility)  throws IOException{
         // Applying the HUIMiner algorithm
 		MinmHUIMinerNegV1 algo = new MinmHUIMinerNegV1();
@@ -79,7 +100,7 @@ public class Atest {
         writer.write(algo.getHUI()+","+algo.getTime()+","+algo.getMemory()+",");
     }
 
-    public static void runMHUIminerNegV2(String input, int min_utility)  throws IOException{
+    public static void runMHUIminerNeg(String input, int min_utility)  throws IOException{
         // Applying the HUIMiner algorithm
 		AlgoMHUIMinerNegV2 algo = new AlgoMHUIMinerNegV2();
 		algo.runAlgorithm(input,".//test_result//mHUIminerNegV2output.txt" , min_utility);
@@ -155,20 +176,18 @@ public class Atest {
 
     }
 
-    public static void runMHUIminer(String input,String output, int min_utility)  throws IOException{
+    public static void runMHUIminer(String input, int min_utility)  throws IOException{
+        String output = ".//test_result//mHUIminer-output.txt";
+
         // Applying the HUIMiner algorithm
 		AlgoMHUIMiner huiminer = new AlgoMHUIMiner();
 		huiminer.runAlgorithm(input, output, min_utility);
 		huiminer.printStats();
     }
-    public static void runMinMHUIminer(String input) throws IOException{
-        String outputMin = ".//test_result//outputMin.txt";
+    public static void runMinMHUIminer(String input,Double ratioUserInput ) throws IOException{
+        String outputMin = ".//test_result//min-HUIminer-outputMin.txt";
         String allItemsets = ".//test_result//allMinMHUIMitemsets.txt";
-
-        Double ratioUserInput = 0.16;
-//        Double ratioUserInput = 0.05;
-
-        // Applying the HUIMiner algorithm
+        // Applying the minHUIMiner algorithm
         mHUIMiner huiminer = new mHUIMiner();
         huiminer.runAlgorithm(input, allItemsets, ratioUserInput, outputMin);
         huiminer.printStats();
