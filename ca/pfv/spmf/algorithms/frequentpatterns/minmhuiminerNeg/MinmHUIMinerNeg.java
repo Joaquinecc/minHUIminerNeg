@@ -572,7 +572,7 @@ public class MinmHUIMinerNeg {
         System.out.println("===================================================");
     }
 	public int getHUI(){
-		return  listItemsetsBySize.size();
+		return  minHuiCount;
 	}
 	public long getTime(){
 		return endTimestamp - startTimestamp;
