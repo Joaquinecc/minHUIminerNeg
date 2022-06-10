@@ -33,7 +33,7 @@ public class Atest {
     public static void main(String [] arg) throws IOException{
 		writer = new BufferedWriter(new FileWriter("C:\\Users\\Euli\\Documents\\uca\\tesis\\SMPF\\test_result\\result.csv"));
 		//String input = fileToPath("DB_retail_negative.txt");
-        String inputs_db[]={"DB_NegativeUtility.txt","accidents_negative.txt","chess_negative.txt","DB_kosarak_negative.txt","pumsb_negative,.txt","mushroom_negative.txt"};
+        String inputs_db[]={"accidents_negative.txt","DB_NegativeUtility.txt","chess_negative.txt","DB_kosarak_negative.txt","pumsb_negative.txt","mushroom_negative.txt"};
         int min_utility;
 		long totalUtility;
         
@@ -41,44 +41,46 @@ public class Atest {
         //Write Headers columns
         writer.write("iteratio,db,total_utility,ratio_utilit,minutil,");
         writer.write("fhn,time,memory,");
-        writer.write("HUINIV,time,memory,");
+        //writer.write("HUINIV,time,memory,");
         writer.write("Min-mHUIminer-NEG,time,memory,");
         writer.write("\n");
     
         int maxIteration=10;
-        for(int i=0;i<maxIteration;i++){
+        for(int iteratio=0;iteratio<maxIteration;iteratio++){
+            System.out.println("Error occur here "+ iteratio);
+
             for(String input_db:inputs_db){
                 String input = fileToPath(input_db);
                 totalUtility= getTotalUtility(input);
-                System.out.println(" input = " + input_db+"\nTotal Utility = " +totalUtility );
+                System.out.println("input = " + input_db+"\nTotal Utility = " +totalUtility );
     
-                for(double ratioMin=0.1;ratioMin<=0.1 ;ratioMin+=0.01){
+                for(double ratioMin=0.5;ratioMin>=0.5 ;ratioMin-=0.05){
     
                     min_utility=(int) (ratioMin*totalUtility);
-                    System.out.println("Iteration = "   +ratioMin);
+                    System.out.println("Iteration = "   +iteratio);
                     System.out.println("ratioMin = "   +ratioMin);
                     System.out.println("min_utility = "   +min_utility)
                     ;
-                    writer.write(i+','+input+','+totalUtility+","+ratioMin+","+min_utility+",");
+                    writer.write(iteratio+','+input+','+totalUtility+","+ratioMin+","+min_utility+",");
         
                     //Algo test
-                    runFHN(input, min_utility);
                     runTheFinalProduct(input, min_utility);
+
+                    runFHN(input, min_utility);
                     //runHUINIV(input, min_utility);
                     //runMHUIminerNeg(input, min_utility);
                     
                     //Positive only
-                    runMinMHUIminer(input,ratioMin);
-                    runMHUIminer(input, min_utility);
+                    //runMinMHUIminer(input,ratioMin);
+                    //runMHUIminer(input, min_utility);
                     
                     //New line for new test results
                     writer.newLine();
-        
                 }
                
     
             }
-        
+            
         }
     
         writer.close();
