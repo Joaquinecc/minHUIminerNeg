@@ -45,7 +45,7 @@ public class MinmHUIMinerNeg {
     private double maxMemory = 0; // the maximum memory usage
     private long startTimestamp = 0; // the time the algorithm started
     private long endTimestamp = 0; // the time the algorithm terminated
-    private int huiCount = 0; // the number of HUIs generated
+    private int minHuiCount = 0; // the number of HUIs generated
     private int minUtility = 0; // threshold
     private int joinCount = 0; // number of times the construct method is called
     //NEW
@@ -53,7 +53,7 @@ public class MinmHUIMinerNeg {
 	Set<Integer> negativeItems = null;
     /** Store single items with at least one posive utility */
 	Set<Integer> positiveItems = null;
-    private Map<Integer, Integer> singleItemUtility;
+
 
     // Map TWU to each item
     private Map<Integer, Integer> mapItemToTWU;
@@ -89,8 +89,8 @@ public class MinmHUIMinerNeg {
         //NEW
         negativeItems = new HashSet<Integer>();
         positiveItems = new HashSet<Integer>();
-        singleItemUtility = new HashMap<Integer, Integer>();
-
+        Map<Integer, Integer> singleItemUtility = new HashMap<Integer, Integer>();
+        Set<Integer> singleMinHUI= new HashSet<Integer>();
         // create a map to store the TWU of each item
         mapItemToTWU = new HashMap<Integer, Integer>();
 
@@ -124,10 +124,10 @@ public class MinmHUIMinerNeg {
                     Integer item = Integer.parseInt(items[i]);
                     Integer twu = mapItemToTWU.get(item);
                     int utility = Integer.parseInt(utilityValues[i]);
-                    Integer itemUtility = singleItemUtility.get(item);
                     twu = (twu == null) ? transactionUtility : twu + transactionUtility;
                     mapItemToTWU.put(item, twu);
                     //NEW
+                    Integer itemUtility = singleItemUtility.get(item);
                     itemUtility = (itemUtility == null) ? utility :utility + itemUtility ;
                     singleItemUtility.put(item, itemUtility);
                     //NEW
@@ -146,16 +146,14 @@ public class MinmHUIMinerNeg {
             }
         }
         checkMemory();
-
-        // ******************************************
+        // ********H**********************************
         // second database scan generates revised transaction and global IHUP-Tree
         // start mining once the IHUP-Tree is built
         try {
 
             // calculate minUtility threshold
             minUtility = minimumUtility;
-            System.out.println("minUtility: " + minUtility);
-
+            
             IHUPTreeMod tree = new IHUPTreeMod();
 
             // create the global hash table to store utilityList
@@ -196,14 +194,18 @@ public class MinmHUIMinerNeg {
                     int item = Integer.parseInt(items[i]);
                     int utility = Integer.parseInt(utilityValues[i]);
                     Item element = new Item(item, utility);
-
+                   
                     // remove unpromising items from the tree
                     //remove the single item minHUI
                     //remove item with only negative utility 
-                    if (mapItemToTWU.get(item) >= minUtility && positiveItems.contains(item) && singleItemUtility.get(item)< minimumUtility ) {
+                    
+                    if(singleItemUtility.get(item) >= minimumUtility){
+                        singleMinHUI.add(item);
+                    }else if (mapItemToTWU.get(item) >= minUtility && positiveItems.contains(item)) {
                         revisedTransaction.add(element);
-                    }
+                    } 
                 }
+                
 
                 // increment transaction ID
                 tid++;
@@ -225,30 +227,20 @@ public class MinmHUIMinerNeg {
                     //NEW
                     remainingUtility += item.getUtility()>0?item.getUtility():0;
                 }
-
+                
                 // add transaction to the global IHUP-Tree
                 tree.addTransaction(revisedTransaction, tid);
             } // end while, finished building tree and utilityLists
-
             // we create the header table for the global IHUP-Tree
             tree.createHeaderList(mapItemToTWU,negativeItems);
             checkMemory();
-
-            for (int i = tree.headerList.size() - 1; i >= 0; i--) {
-                Integer itemID = tree.headerList.get(i);
-
-                // initial itemset contains only single item
+            
+            for (Integer itemID : singleMinHUI) {
                 int[] itemset = ArraysAlgos.appendIntegerToArray(new int[0], itemID);
-                UtilityList ulist = mapItemToUtilityList.get(itemID);
+                      registerItemsetAndRemoveLarger(itemset,singleItemUtility.get(itemID),1);
 
-                // if sumIutils >= minUtility, the itemset is a minHUI
-                if (ulist.sumIutils >= minUtility) {
-                    registerItemsetAndRemoveLarger(itemset, ulist.sumIutils, ulist.uLists.size());
-//                    if (DEBUG) {
-//                        System.out.println("First for " + Arrays.toString(itemset));
-//                    }
-                }
             }
+            
 
             // start mining over the tree
             // for each item from the bottom of the header table list of the tree
@@ -535,8 +527,8 @@ public class MinmHUIMinerNeg {
      */
 
     private void writeOutMin(Itemset itemset) throws IOException {
-//        huiCount++; // increase the number of high utility itemsets found
-
+        // increase the number of minHUI found
+        minHuiCount++;
         //Create a string buffer
         StringBuilder buffer = new StringBuilder();
         // append the prefix
@@ -571,12 +563,12 @@ public class MinmHUIMinerNeg {
      * Print statistics about the latest execution to System.out.
      */
     public void printStats() {
-        System.out.println("=============  MinmHUIMinerNegV1 - STATS =============");
+        System.out.println("=============  FINAL MIN-mHUIMINER-NEG - STATS =============");
         //System.out.println(" Minimum utility: " + minUtility);
         System.out.println(" Total time ~ " + (endTimestamp - startTimestamp) + " ms");
         System.out.println(" Memory ~ " + maxMemory + " MB");
         //System.out.println(" Join count: " + joinCount);
-        System.out.println(" MinHUIs count : " + listItemsetsBySize.size());
+        System.out.println(" MinHUIs count : " + minHuiCount);
         System.out.println("===================================================");
     }
 	public int getHUI(){
