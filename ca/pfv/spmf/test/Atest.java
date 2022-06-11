@@ -33,7 +33,7 @@ public class Atest {
     public static void main(String [] arg) throws IOException{
 		writer = new BufferedWriter(new FileWriter("C:\\Users\\Euli\\Documents\\uca\\tesis\\SMPF\\test_result\\result.csv"));
 		//String input = fileToPath("DB_retail_negative.txt");
-        String inputs_db[]={"accidents_negative.txt","DB_NegativeUtility.txt","chess_negative.txt","DB_kosarak_negative.txt","pumsb_negative.txt","mushroom_negative.txt"};
+        String inputs_db[]={"DB_NegativeUtility.txt","accidents_negative.txt","chess_negative.txt","pumsb_negative.txt","mushroom_negative.txt","DB_kosarak_negative.txt"};
         int min_utility;
 		long totalUtility;
         
@@ -47,21 +47,20 @@ public class Atest {
     
         int maxIteration=10;
         for(int iteratio=0;iteratio<maxIteration;iteratio++){
-            System.out.println("Error occur here "+ iteratio);
+            System.out.println("New iteratio \n\n ---------------------- \n\n");
 
             for(String input_db:inputs_db){
                 String input = fileToPath(input_db);
                 totalUtility= getTotalUtility(input);
-                System.out.println("input = " + input_db+"\nTotal Utility = " +totalUtility );
+                System.out.println("  \n\n input = " + input_db+"\nTotal Utility = " +totalUtility + "\n\n" );
     
-                for(double ratioMin=0.5;ratioMin>=0.5 ;ratioMin-=0.05){
+                for(double ratioMin=0.5;ratioMin>=0.05 ;ratioMin-=0.05){
     
                     min_utility=(int) (ratioMin*totalUtility);
                     System.out.println("Iteration = "   +iteratio);
                     System.out.println("ratioMin = "   +ratioMin);
-                    System.out.println("min_utility = "   +min_utility)
-                    ;
-                    writer.write(iteratio+','+input+','+totalUtility+","+ratioMin+","+min_utility+",");
+                    System.out.println("min_utility = "   +min_utility+"\n");
+                    writer.write(Integer.toString(iteratio)+','+input_db+','+totalUtility+","+ratioMin+","+min_utility+",");
         
                     //Algo test
                     runTheFinalProduct(input, min_utility);
@@ -76,6 +75,8 @@ public class Atest {
                     
                     //New line for new test results
                     writer.newLine();
+                    //Save
+                    writer.flush();
                 }
                
     
