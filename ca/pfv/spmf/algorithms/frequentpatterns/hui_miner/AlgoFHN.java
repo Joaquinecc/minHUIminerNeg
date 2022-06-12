@@ -87,6 +87,7 @@ public class AlgoFHN {
 	final int BUFFERS_SIZE = 200;
 	private int[] itemsetBuffer = null;
 
+	public int minuteThreshold= 20*1000*60;
 
 	//===================== FHN ===========================
 	Set<Integer> negativeItems = null;
@@ -119,7 +120,7 @@ public class AlgoFHN {
 	 * @param minUtility the minimum utility threshold
 	 * @throws IOException exception if error while writing the file
 	 */
-	public void runAlgorithm(String input, String output, int minUtility) throws IOException {
+	public int runAlgorithm(String input, String output, int minUtility) throws IOException {
 		// reset maximum
 		MemoryLogger.getInstance().reset();
 		
@@ -348,7 +349,7 @@ public class AlgoFHN {
 		MemoryLogger.getInstance().checkMemory();
 
 		// Mine the database recursively
-		fhn(itemsetBuffer, 0, null, listOfUtilityLists, minUtility);
+		int temp= fhn(itemsetBuffer, 0, null, listOfUtilityLists, minUtility);
 		
 		// check the memory usage again and close the file.
 		MemoryLogger.getInstance().checkMemory();
@@ -356,6 +357,8 @@ public class AlgoFHN {
 		writer.close();
 		// record end time
 		endTimestamp = System.currentTimeMillis();
+
+		return temp;
 	}
 	
 	/**
@@ -390,10 +393,10 @@ public class AlgoFHN {
 	 * @param prefixLength The current prefix length
 	 * @throws IOException
 	 */
-	private void fhn(int [] prefix, 
+	private int fhn(int [] prefix, 
 			int prefixLength, UtilityListFHN pUL, List<UtilityListFHN> ULs, int minUtility)
 			throws IOException {
-		
+		if( System.currentTimeMillis()-startTimestamp >= minuteThreshold) return -1;
 		// For each extension X of prefix P
 		for(int i=0; i< ULs.size(); i++){
 			UtilityListFHN X = ULs.get(i);
@@ -439,10 +442,11 @@ public class AlgoFHN {
 				itemsetBuffer[prefixLength] = X.item;
 				
 				// We make a recursive call to discover all itemsets with the prefix pXY
-				fhn(itemsetBuffer, prefixLength+1, X, exULs, minUtility); 
+				if(fhn(itemsetBuffer, prefixLength+1, X, exULs, minUtility) == -1) return -1; 
 			}
 		}
 		MemoryLogger.getInstance().checkMemory();
+		return 0;
 	}
 	
 	/**

@@ -33,39 +33,59 @@ public class Atest {
     public static void main(String [] arg) throws IOException{
 		writer = new BufferedWriter(new FileWriter("C:\\Users\\Euli\\Documents\\uca\\tesis\\SMPF\\test_result\\result.csv"));
 		//String input = fileToPath("DB_retail_negative.txt");
-        String inputs_db[]={"DB_NegativeUtility.txt","accidents_negative.txt","chess_negative.txt","pumsb_negative.txt","mushroom_negative.txt","DB_kosarak_negative.txt"};
+        String inputs_db[]={"accidents_negative.txt","chess_negative.txt","pumsb_negative.txt","mushroom_negative.txt"};
         int min_utility;
 		long totalUtility;
-        
-    
+        double ratioMin;
+
         //Write Headers columns
         writer.write("iteratio,db,total_utility,ratio_utilit,minutil,");
         writer.write("fhn,time,memory,");
         //writer.write("HUINIV,time,memory,");
-        writer.write("Min-mHUIminer-NEG,time,memory,");
+       // writer.write("Min-mHUIminer-NEG,time,memory,");
         writer.write("\n");
-    
         int maxIteration=10;
         for(int iteratio=0;iteratio<maxIteration;iteratio++){
-            System.out.println("New iteratio \n\n ---------------------- \n\n");
+            System.out.println("Iteratio = "+iteratio+"\n\n ---------------------- \n\n");
 
             for(String input_db:inputs_db){
                 String input = fileToPath(input_db);
                 totalUtility= getTotalUtility(input);
                 System.out.println("  \n\n input = " + input_db+"\nTotal Utility = " +totalUtility + "\n\n" );
-    
-                for(double ratioMin=0.5;ratioMin>=0.05 ;ratioMin-=0.05){
-    
+                    ratioMin=0.5;
                     min_utility=(int) (ratioMin*totalUtility);
+                    //For debugging
                     System.out.println("Iteration = "   +iteratio);
                     System.out.println("ratioMin = "   +ratioMin);
                     System.out.println("min_utility = "   +min_utility+"\n");
                     writer.write(Integer.toString(iteratio)+','+input_db+','+totalUtility+","+ratioMin+","+min_utility+",");
-        
-                    //Algo test
-                    runTheFinalProduct(input, min_utility);
-
-                    runFHN(input, min_utility);
+                while(runFHN(input, min_utility) != -1 && ratioMin>0)
+                {
+                    writer.newLine();
+                    writer.flush();//Save
+                    ratioMin-=0.05;
+                    min_utility=(int) (ratioMin*totalUtility);
+                    //For debugging
+                    System.out.println("Iteration = "   +iteratio);
+                    System.out.println("ratioMin = "   +ratioMin);
+                    System.out.println("min_utility = "   +min_utility+"\n");
+                    writer.write(Integer.toString(iteratio)+','+input_db+','+totalUtility+","+ratioMin+","+min_utility+",");
+                    writer.newLine();
+                    writer.flush();//Save
+                }
+                    
+               
+    
+            }
+            
+        }
+    
+        writer.close();
+         //Algo test
+                    //runTheFinalProduct(input, min_utility);
+                     //15 minutos
+                    //if(runFHN(input, min_utility) == -1) break;
+                               
                     //runHUINIV(input, min_utility);
                     //runMHUIminerNeg(input, min_utility);
                     
@@ -74,17 +94,6 @@ public class Atest {
                     //runMHUIminer(input, min_utility);
                     
                     //New line for new test results
-                    writer.newLine();
-                    //Save
-                    writer.flush();
-                }
-               
-    
-            }
-            
-        }
-    
-        writer.close();
     
 	}
     public static void runTheFinalProduct(String input, int min_utility)  throws IOException{
@@ -119,13 +128,14 @@ public class Atest {
         writer.write(algo.getHUI()+","+algo.getTime()+","+algo.getMemory()+",");
     }
 
-	public static void runFHN(String input, int min_utility)  throws IOException{
+	public static int runFHN (String input, int min_utility)  throws IOException{
         // Applying the FHN algorithm
         String output = ".//test_result//fhnoutput.txt";
         AlgoFHN algo = new AlgoFHN();
-        algo.runAlgorithm(input, output, min_utility);
+        int temp= algo.runAlgorithm(input, output, min_utility);
         algo.printStats();
-        writer.write(algo.getHUI()+","+algo.getTime()+","+algo.getMemory()+",");
+        writer.write((temp == -1? temp : algo.getHUI() )+","+algo.getTime()+","+algo.getMemory()+",");
+        return temp;
     }
     public static void runHUINIV(String input, int min_utility)  throws IOException{
         String output = ".//test_result//huinivoutput.txt";
