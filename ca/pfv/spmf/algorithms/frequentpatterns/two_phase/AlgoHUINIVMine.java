@@ -60,6 +60,8 @@ public class AlgoHUINIVMine {
 	long startTimestamp = 0;  // start time
 	long endTimestamp = 0; // end time
 	private int candidatesCount; // the number of candidates generated
+
+	private int thresholdTime = 20*1000*60;
 	
 	//=========  DIFFERENCE FROM TWO-PHASE ======/
 	/** the set of negative items **/
@@ -177,6 +179,11 @@ public class AlgoHUINIVMine {
 		// For each item
 		for(int item=0; item<= maxItem; item++){
 			// Get the twu of the item
+			if(System.currentTimeMillis() -startTimestamp >= thresholdTime){
+				highUtilityItemsets.fail=true;
+				return highUtilityItemsets;
+			}
+
 			Integer estimatedUtility = mapItemTWU.get(item);
 			// if it is a HWTUI itemset (see formal definition in paper)
 			if(estimatedUtility != null && estimatedUtility >= minUtility){
@@ -213,6 +220,12 @@ public class AlgoHUINIVMine {
 		// ========================  PHASE 2: Calculate exact utility of each candidate =============
 		// for each level of HWTUIs found in phase 1
 		for(List<ItemsetTP> level : highUtilityItemsets.getLevels()){
+			if(System.currentTimeMillis() -startTimestamp >= thresholdTime){
+				highUtilityItemsets.fail=true;
+				return highUtilityItemsets;
+			}
+
+
 			// for each HWTUIs in that level
 			Iterator<ItemsetTP> iterItemset = level.iterator();
 			while(iterItemset.hasNext()){
@@ -379,5 +392,15 @@ public class AlgoHUINIVMine {
 		System.out.println(" Total time ~ " + (endTimestamp - startTimestamp) + " ms");
 		System.out
 				.println("===================================================");
+	}
+
+	public int getHUI(){
+		return highUtilityItemsets.getItemsetsCount();
+	}
+	public long getTime(){
+		return endTimestamp - startTimestamp;
+	}
+	public double getMemory(){
+         return MemoryLogger.getInstance().getMaxMemory();
 	}
 }

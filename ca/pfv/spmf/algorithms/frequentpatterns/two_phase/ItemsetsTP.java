@@ -42,7 +42,7 @@ public class ItemsetsTP {
 	
 	// A name given to those itemsets
 	private String name;
-
+	public boolean fail = false;
 	/**
 	 * Constructor.
 	 * @param name  a name to give to these itemsets
