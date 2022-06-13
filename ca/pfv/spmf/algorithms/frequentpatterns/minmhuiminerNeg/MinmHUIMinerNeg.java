@@ -48,6 +48,7 @@ public class MinmHUIMinerNeg {
     private int minHuiCount = 0; // the number of HUIs generated
     private int minUtility = 0; // threshold
     private int joinCount = 0; // number of times the construct method is called
+    private int thresholdTime = 20*1000*60;
     //NEW
     /** Store single items with at least one negative utility */
 	Set<Integer> negativeItems = null;
@@ -78,7 +79,7 @@ public class MinmHUIMinerNeg {
      * @param minimumUtility       the minimum utility threshold as a ratio
      * @throws IOException exception if error while reading or writing the file
      */
-    public void runAlgorithm(String input, int minimumUtility, String outputMin) throws IOException {
+    public int runAlgorithm(String input, int minimumUtility, String outputMin) throws IOException {
 
         maxMemory = 0;
 
@@ -259,7 +260,7 @@ public class MinmHUIMinerNeg {
                         // call the mining procedure to explore
                         // itemsets that are extensions of the current itemset
                         if (localTree.headerList.size() > 0) {
-                            miner(localTree, minUtility, itemset, ulist.uLists);
+                            if(miner(localTree, minUtility, itemset, ulist.uLists) == -1) return -1;
                             checkMemory();
                         }
                     }
@@ -285,6 +286,7 @@ public class MinmHUIMinerNeg {
         endTimestamp = System.currentTimeMillis();
       
         writerMin.close();
+        return 0;
     }
 
     private int compareItemsAsc(int item1, int item2, Map<Integer, Integer> mapItemEstimatedUtility) {
@@ -310,8 +312,9 @@ public class MinmHUIMinerNeg {
      * @param itemset    the prefix itemset
      * @param pTuples    a list of UtilityTuples of the current itemset
      */
-    private void miner(IHUPTreeMod tree, int minUtility, int[] itemset, List<UtilityTuple> pTuples)
+    private int miner(IHUPTreeMod tree, int minUtility, int[] itemset, List<UtilityTuple> pTuples)
             throws IOException {
+        if(System.currentTimeMillis() -startTimestamp >= thresholdTime) return -1;
         // from the bottom of the header list
         for (int i = tree.headerList.size() - 1; i >= 0; i--) {
 
@@ -346,7 +349,7 @@ public class MinmHUIMinerNeg {
                         // recursively call the miner procedure to
                         // explore other itemsets that are extensions of the current one
                         if (localTree.headerList.size() > 0) {
-                            miner(localTree, minUtility, itemset, pxTuples.uLists);
+                            if(miner(localTree, minUtility, itemset, pxTuples.uLists) == -1) return -1;
                             checkMemory();
                         }
                     }
@@ -355,6 +358,7 @@ public class MinmHUIMinerNeg {
             }
             itemset = ArraysAlgos.removeLastItem(itemset);
         } // end for
+        return 0;
     }
 
 
