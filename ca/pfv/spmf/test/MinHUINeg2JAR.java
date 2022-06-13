@@ -78,12 +78,17 @@ public class MinHUINeg2JAR {
 
 	}
     public static int runTheFinalProduct(String input, int min_utility)  throws IOException{
-        // Applying the HUIMiner algorithm
-		MinmHUIMinerNeg algo = new MinmHUIMinerNeg();
-		int temp=algo.runAlgorithm(input, min_utility,".//outputMinmHuiminerNeg.txt" );
-		algo.printStats();
-        writer.write((temp == -1? temp : algo.getHUI() )+","+algo.getTime()+","+algo.getMemory()+",");
-        return temp;
+        try{
+			// Applying the HUIMiner algorithm
+			MinmHUIMinerNeg algo = new MinmHUIMinerNeg();
+			int temp=algo.runAlgorithm(input, min_utility,".//outputMinmHuiminerNeg.txt" );
+			algo.printStats();
+			writer.write((temp == -1? temp : algo.getHUI() )+","+algo.getTime()+","+algo.getMemory()+",");
+			return temp;
+		}catch(OutOfMemoryError  e){
+            System.out.println("Memorry ERROR");
+            return -1;
+        }
     }
 	public static long getTotalUtility(String input) throws IOException {
         // We scan the database a first time to calculate the TWU of each item.

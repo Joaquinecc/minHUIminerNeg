@@ -80,12 +80,17 @@ public class FHN2JAR {
 	}
 	public static int runFHN (String input, int min_utility)  throws IOException{
         // Applying the FHN algorithm
-        String output = ".//fhnoutput.txt";
+        try{
+			String output = ".//fhnoutput.txt";
         AlgoFHN algo = new AlgoFHN();
         int temp= algo.runAlgorithm(input, output, min_utility);
         algo.printStats();
         writer.write((temp == -1? temp : algo.getHUI() )+","+algo.getTime()+","+algo.getMemory()+",");
         return temp;
+		}catch(OutOfMemoryError  e){
+            System.out.println("Memorry ERROR");
+            return -1;
+        }
     }
 	public static long getTotalUtility(String input) throws IOException {
         // We scan the database a first time to calculate the TWU of each item.
