@@ -21,7 +21,7 @@ public class FHN2JAR {
 	public static void main(String [] arg) throws IOException{
 		writer = new BufferedWriter(new FileWriter("resultfhn.csv"));
 		int maxIteration= 10;
-		String inputs_db[]={"accidents_negative.txt","chess_negative.txt","pumsb_negative.txt","mushroom_negative.txt"};
+		String inputs_db[]={"retail_utility.txt","DB_retail_negative.txt","chess_negative.txt","pumsb_negative.txt","mushroom_negative.txt","ECommerce_retail_utility_timestamps.txt"};
 		String data_dir=System.getProperty("user.dir")+"/";
 		try {
 			 maxIteration = Integer.parseInt(arg[0]);
@@ -50,26 +50,24 @@ public class FHN2JAR {
                 String input = data_dir+input_db;
                 totalUtility= getTotalUtility(input);
                 System.out.println("  \n\n input = " + input_db+"\nTotal Utility = " +totalUtility + "\n\n" );
-                    ratioMin=0.5;
-                    min_utility=(int) (ratioMin*totalUtility);
+                    ratioMin=0.8;                    min_utility=(int) (ratioMin*totalUtility);
                     //For debugging
                     System.out.println("Iteration = "   +iteratio);
                     System.out.println("ratioMin = "   +ratioMin);
                     System.out.println("min_utility = "   +min_utility+"\n");
                     writer.write(Integer.toString(iteratio)+','+input_db+','+totalUtility+","+ratioMin+","+min_utility+",");
-                while(runFHN(input, min_utility) != -1 && ratioMin>0)
+                while(runFHN(input, min_utility) != -1 )
                 {
                     writer.newLine();
                     writer.flush();//Save
-                    ratioMin-=0.05;
+                    ratioMin-= ratioMin>0.05?0.05:0.01;
                     min_utility=(int) (ratioMin*totalUtility);
+					if( ratioMin<=0) break;
                     //For debugging
                     System.out.println("Iteration = "   +iteratio);
                     System.out.println("ratioMin = "   +ratioMin);
                     System.out.println("min_utility = "   +min_utility+"\n");
                     writer.write(Integer.toString(iteratio)+','+input_db+','+totalUtility+","+ratioMin+","+min_utility+",");
-                    writer.newLine();
-                    writer.flush();//Save
                 }
                
             }
